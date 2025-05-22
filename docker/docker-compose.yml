@@ -13,8 +13,16 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FORCE_COLOR=1
     tty: true
     stdin_open: true
 
