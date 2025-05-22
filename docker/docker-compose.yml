@@ -6,25 +6,20 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "8000:8000" # Assuming the retriever service runs on port 8000
     volumes:
-      - ../data:/app/data
+      - ~/sr1_save:/data  # Mount the entire data directory
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              count: 1
               capabilities: [gpu]
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    environment:
-      - PYTHONUNBUFFERED=1
-      - FORCE_COLOR=1
-    tty: true
-    stdin_open: true
 
 # 使用方法:
 # 基础用法: 
