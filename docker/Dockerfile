@@ -1,10 +1,11 @@
-FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
 
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     procps \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage Docker cache
