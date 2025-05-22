@@ -9,26 +9,21 @@ A fast GPU-accelerated semantic search service using FAISS and transformer model
 - Docker support with CUDA
 - FastAPI server interface
 
-## Directory Structure
+## Prerequisites
+
+Before building or running the service, run the pre-check script:
+
+```bash
+# Check prerequisites and download required data
+./scripts/check_docker.sh
 ```
-Search-R1-retriver/
-├── retriever/              # Core retriever implementation
-│   ├── models/            # Model implementations
-│   │   ├── dense.py      # Dense retriever (FAISS)
-│   │   ├── encoder.py    # Text encoders
-│   │   └── reranker.py   # Cross-encoder reranker
-│   ├── server/           # Server implementations
-│   │   ├── app.py        # FastAPI server
-│   │   └── config.py     # Server configuration
-│   └── utils/            # Utility functions
-├── scripts/               # Helper scripts
-│   ├── build_index.py    # Index building script
-│   └── download.py       # Data download script
-├── docker/               # Docker related files
-│   ├── Dockerfile       
-│   └── docker-compose.yml
-└── examples/             # Example usage
-```
+
+This will:
+1. Check if Docker and NVIDIA drivers are installed
+2. Verify Python environment
+3. Download required data files if missing:
+   - FAISS index (~4GB)
+   - Wikipedia corpus (~2GB)
 
 ## Quick Start
 
@@ -38,53 +33,50 @@ Search-R1-retriver/
 docker build -t retriever-gpu -f docker/Dockerfile .
 
 # Run with GPU support
-docker run --gpus all -v ~/sr1_save:/data/corpus -p 8000:8000 retriever-gpu
+docker run --gpus all -v ~/sr1_save:/data -p 8000:8000 retriever-gpu
 ```
 
-2. **Build Index:**
-```bash
-python scripts/build_index.py \
-  --corpus_path /path/to/corpus.jsonl \
-  --save_dir /path/to/save \
-  --retriever_name e5 \
-  --model_path intfloat/e5-base-v2 \
-  --faiss_type Flat \
-  --faiss_gpu
-```
-
-3. **Run Server:**
-```bash
-python -m retriever.server.app \
-  --index_path /path/to/index \
-  --corpus_path /path/to/corpus.jsonl \
-  --retriever_name e5 \
-  --retriever_model intfloat/e5-base-v2 \
-  --reranker_model cross-encoder/ms-marco-MiniLM-L12-v2
-```
-
-## API Usage
-
-### Basic Retrieval
+2. **Use the API:**
 ```python
 import requests
 
+# Basic retrieval
 response = requests.post("http://localhost:8000/retrieve", 
     json={
         "queries": ["What is Python?"],
-        "topk": 3
+        "topk_retrieval": 10
     }
 )
-```
 
-### Retrieval with Reranking
-```python
+# Retrieval with reranking
 response = requests.post("http://localhost:8000/retrieve", 
     json={
         "queries": ["What is Python?"],
         "topk_retrieval": 10,
-        "topk_rerank": 3
+        "topk_rerank": 3,
+        "return_scores": True
     }
 )
+```
+
+## Directory Structure
+```
+Search-R1-retriver/
+├── docker/               # Docker configuration
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── retriever/           # Core package
+│   ├── models/         # Model implementations
+│   │   ├── dense.py   # FAISS retriever
+│   │   ├── encoder.py # Text encoder
+│   │   └── reranker.py # Cross-encoder reranker
+│   ├── server/        # Server implementation
+│   │   ├── app.py    # FastAPI server
+│   │   └── config.py # Configuration
+│   └── utils/        # Utility functions
+└── scripts/           # Helper scripts
+    ├── check_data.py  # Data verification
+    └── check_docker.sh # Prerequisites check
 ```
 
 ## Configuration

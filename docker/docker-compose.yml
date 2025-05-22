@@ -12,7 +12,7 @@ services:
     ports:
       - "8000:8000" # Assuming the retriever service runs on port 8000
     volumes:
-      - ~/sr1_save:/data
+      - ~/sr1_save:/data  # Mount the entire data directory
     deploy:
       resources:
         reservations:
