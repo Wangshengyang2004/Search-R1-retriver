@@ -1,0 +1,43 @@
+# filepath: /Users/simonwsy/workspace/Search-R1-retriver/retriever/docker-compose.yml
+version: '3.8'
+
+services:
+  retriever:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "8000:8000" # Assuming the retriever service runs on port 8000
+    volumes:
+      - ~/sr1_save:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+# 使用方法:
+# 基础用法: 
+#   1. 在当前目录创建corpus_data文件夹并放入所需数据文件
+#   2. 运行 'docker-compose up'
+#
+# 高级用法:
+#   # 使用ANN检索器
+#   DATA_DIR=./my_data RETRIEVER_TYPE=ann INDEX_FILE=my_index.index docker-compose up -d
+#
+#   # 使用BM25检索器
+#   DATA_DIR=./my_data RETRIEVER_TYPE=bm25 docker-compose up -d
+#
+#   # 使用Google检索器
+#   RETRIEVER_TYPE=google API_KEY=your_google_api_key CX=your_google_cx docker-compose up -d
+#
+#   # 使用SerpAPI检索器
+#   RETRIEVER_TYPE=serpapi API_KEY=your_serpapi_key docker-compose up -d
+#
+#   # 使用分层检索器
+#   RETRIEVER_TYPE=hierarchical API_KEY=your_api_key CX=your_cx DATA_DIR=./my_data docker-compose up -d

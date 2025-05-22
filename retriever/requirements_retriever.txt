@@ -1,0 +1,31 @@
+# filepath: /Users/simonwsy/workspace/Search-R1-retriver/retriever/requirements_retriever.txt
+# 核心依赖
+torch>=2.1.0
+transformers>=4.36.0
+sentence-transformers>=2.2.2
+faiss-gpu>=1.7.4
+datasets>=2.16.0
+numpy>=1.24.0
+pandas
+pybind11
+tensordict<0.6
+# flask或fastapi (根据实际使用的Web框架)
+flask
+# 用于ANN索引
+# 用于BM25索引
+pyserini
+rank_bm25
+# 可选依赖，根据实际使用的检索器增减
+google-api-python-client
+serpapi
+# 性能优化
+uvicorn>=0.27.0
+gunicorn
+
+# Server dependencies
+fastapi>=0.109.0
+pydantic>=2.5.0
+
+# Utilities
+tqdm>=4.66.0
+requests>=2.31.0
