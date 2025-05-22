@@ -6,13 +6,8 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    runtime: nvidia
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-    ports:
-      - "8000:8000" # Assuming the retriever service runs on port 8000
     volumes:
-      - ~/sr1_save:/data  # Mount the entire data directory
+      - ../data:/app/data
     deploy:
       resources:
         reservations:
@@ -20,6 +15,8 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+    tty: true
+    stdin_open: true
 
 # 使用方法:
 # 基础用法: 

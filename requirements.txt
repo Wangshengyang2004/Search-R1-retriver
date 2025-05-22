@@ -1,0 +1,21 @@
+# Core dependencies
+torch==2.4.0
+torchvision==0.19.0
+torchaudio==2.4.0
+faiss-gpu==1.8.0
+
+# ML and data processing
+transformers
+datasets
+pyserini
+
+# API dependencies
+uvicorn
+fastapi
+
+# Development tools
+huggingface_hub
+
+# Note: For local development, install PyTorch and FAISS-GPU using conda:
+# conda install pytorch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+# conda install -c pytorch -c nvidia faiss-gpu=1.8.0 

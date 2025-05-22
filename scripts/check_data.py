@@ -21,7 +21,9 @@ def print_color(text, color):
 
 def check_data_dir():
     """Check if data directories exist, create if not."""
-    data_dir = Path.home() / "sr1_save"
+    # Get the project root directory (where the script is located)
+    project_root = Path(__file__).resolve().parent.parent
+    data_dir = project_root / "data"
     index_dir = data_dir / "index"
     corpus_dir = data_dir / "corpus"
     nq_dir = data_dir / "nq_data"
@@ -119,7 +121,8 @@ def download_nq_dataset(save_dir):
 
 def check_files():
     """Check if required files exist and have correct sizes."""
-    data_dir = Path.home() / "sr1_save"
+    project_root = Path(__file__).resolve().parent.parent
+    data_dir = project_root / "data"
     index_path = data_dir / "index" / "e5_Flat.index"
     corpus_path = data_dir / "corpus" / "wiki-18.jsonl"
     nq_dir = data_dir / "nq_data"
@@ -168,9 +171,9 @@ def main():
     
     if response != 'y':
         print_color("\nPlease download the required files manually:", "yellow")
-        print("1. Index file should be at: ~/sr1_save/index/e5_Flat.index")
-        print("2. Corpus file should be at: ~/sr1_save/corpus/wiki-18.jsonl")
-        print("3. NQ dataset files should be in: ~/sr1_save/nq_data/")
+        print("1. Index file should be at: ./data/index/e5_Flat.index")
+        print("2. Corpus file should be at: ./data/corpus/wiki-18.jsonl")
+        print("3. NQ dataset files should be in: ./data/nq_data/")
         return 1
         
     try:

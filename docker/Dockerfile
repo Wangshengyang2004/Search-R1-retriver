@@ -1,39 +1,56 @@
-FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
 
-WORKDIR /app
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CONDA_DIR=/opt/conda
+ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    procps \
-    build-essential \
+    wget \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage Docker cache
-COPY retriever/requirements_retriever.txt .
-RUN pip install --no-cache-dir -r requirements_retriever.txt && \
-    rm -rf ~/.cache/pip/*
+# Install Miniconda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p $CONDA_DIR && \
+    rm ~/miniconda.sh
 
-# Copy source code
-COPY retriever/ ./retriever/
+# Create conda environment with specific Python version
+RUN conda create -n retriever python=3.10 -y
 
-# Create directories for data and models
-RUN mkdir -p /data/index /data/corpus /data/models
+# Set up shell to use conda environment by default
+SHELL ["conda", "run", "-n", "retriever", "/bin/bash", "-c"]
 
-# Set environment variables
-ENV RETRIEVER_TYPE=ann \
-    DATA_DIR=/data \
-    INDEX_FILE=e5_Flat.index \
-    CORPUS_FILE=wiki-18.jsonl \
-    RETRIEVER_MODEL=intfloat/e5-base-v2 \
-    RERANKER_MODEL=cross-encoder/ms-marco-MiniLM-L12-v2 \
-    PYTHONPATH=/app
+# Install PyTorch with CUDA support
+RUN conda install -y -c pytorch -c nvidia \
+    pytorch==2.4.0 \
+    torchvision==0.19.0 \
+    torchaudio==2.4.0 \
+    pytorch-cuda=12.1
 
-# Expose port
-EXPOSE 8000
+# Install FAISS-GPU
+RUN conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
 
-# Set entrypoint
-ENTRYPOINT ["python", "-m", "retriever.server.app", \
-            "--index_path", "/data/index/e5_Flat.index", \
-            "--corpus_path", "/data/corpus/wiki-18.jsonl", \
-            "--retriever_model", "intfloat/e5-base-v2", \
-            "--reranker_model", "cross-encoder/ms-marco-MiniLM-L12-v2"]
+# Install other Python packages
+RUN pip install --no-cache-dir \
+    transformers \
+    datasets \
+    pyserini \
+    uvicorn \
+    fastapi \
+    huggingface_hub
+
+# Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY . .
+
+# Make sure scripts are executable
+RUN chmod +x scripts/*.py
+
+# Set the default command to activate conda environment
+SHELL ["conda", "run", "-n", "retriever", "/bin/bash", "-c"]
+ENTRYPOINT ["conda", "run", "-n", "retriever"]
+CMD ["/bin/bash"]

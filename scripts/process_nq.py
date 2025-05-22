@@ -88,7 +88,8 @@ def save_processed_data(processed_data, output_dir, split):
 
 def main():
     # Set up paths
-    data_dir = Path.home() / "sr1_save"
+    project_root = Path(__file__).resolve().parent.parent
+    data_dir = project_root / "data"
     output_dir = data_dir / "processed_data"
     output_dir.mkdir(exist_ok=True)
     
